@@ -1,4 +1,4 @@
-# Needed software
+# Required software
 - MySql
 - IntelliJ (or another Java IDE)
 
