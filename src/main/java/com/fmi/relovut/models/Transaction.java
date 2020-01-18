@@ -39,4 +39,17 @@ public class Transaction {
     @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
     @Setter(AccessLevel.PROTECTED)
     private Long version = 0L;
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", rate=" + rate +
+                ", date=" + date +
+                ", fromAccount=" + fromAccount.getId() +
+                ", toAccount=" + toAccount.getId() +
+                ", version=" + version +
+                '}';
+    }
 }

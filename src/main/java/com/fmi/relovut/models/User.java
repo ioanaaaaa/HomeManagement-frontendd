@@ -65,5 +65,15 @@ public class User {
         return this.getId().equals(((User) obj).getId());
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", fullname='" + fullname + '\'' +
+                ", account=" + account.getId() +
+                ", version=" + version +
+                '}';
+    }
 }

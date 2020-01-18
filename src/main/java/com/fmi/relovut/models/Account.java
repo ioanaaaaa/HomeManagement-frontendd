@@ -63,4 +63,15 @@ public class Account {
             return true;
         return this.getId().equals(((Account) obj).getId());
     }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", user=" + user.getId() +
+                ", currency=" + currency +
+                ", version=" + version +
+                '}';
+    }
 }

@@ -39,4 +39,14 @@ public class Currency {
     @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
     @Setter(AccessLevel.PROTECTED)
     private Long version = 0L;
+
+    @Override
+    public String toString() {
+        return "Currency{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", isoName='" + isoName + '\'' +
+                ", version=" + version +
+                '}';
+    }
 }

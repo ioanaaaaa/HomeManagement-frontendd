@@ -1,5 +1,6 @@
 package com.fmi.relovut.services;
 
+import com.fmi.relovut.dto.account.AccountDetailsDto;
 import com.fmi.relovut.dto.transactions.TransactionDto;
 import com.fmi.relovut.helpers.GeneralHelper;
 import com.fmi.relovut.models.Account;
@@ -15,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
+import java.security.Principal;
+import java.security.Security;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +39,9 @@ public class TransactionService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
     public List<TransactionDto> getAllTransactions(String userEmail) {
         User user = userRepository.findByEmail(userEmail);
@@ -75,5 +82,26 @@ public class TransactionService {
         account.setAmount(account.getAmount() + GeneralHelper.round(amount * rate, 4));
         user.getAccount().setAmount(user.getAccount().getAmount() - amount);
         transactionRepository.save(newTransaction);
+    }
+
+
+    public List<TransactionDto> getTransactionsInInterval(Date fromDate, Date toDate, String currentUserEmail){
+        if(fromDate.after(toDate)){
+            fromDate = toDate;
+            toDate = fromDate;
+        }
+
+        AccountDetailsDto accountDetailsDto = userService.getAccountDetails(currentUserEmail);
+
+        UUID accountId =  UUID.fromString(accountDetailsDto.getId());
+        List<Transaction> transactions =  transactionRepository.findByFromAccount_IdOrToAccount_idAndDateBetween(accountId,accountId, fromDate, toDate);
+        transactions.addAll(transactionRepository.findByToAccount_idOrFromAccount_IdAndDateBetween(accountId,accountId, fromDate, toDate));
+
+        List<TransactionDto> transactionDtos = transactions.stream()
+                .sorted(Comparator.comparing(Transaction::getDate).reversed())
+                .map(TransactionDto::new)
+                .collect(Collectors.toList());
+
+        return transactionDtos;
     }
 }
