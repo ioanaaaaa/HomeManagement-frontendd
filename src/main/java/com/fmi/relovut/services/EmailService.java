@@ -1,50 +1,51 @@
 package com.fmi.relovut.services;
 
+import com.fmi.relovut.dto.transactions.TransactionDto;
 import com.fmi.relovut.helpers.email.templates.RegisterEmailTemplate;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class EmailService {
-    private Boolean sendEmails;
-    private String host;
-    private String port;
-    private String username;
-    private String password;
-    private String fromEmail;
-    private String fromName;
+
+    @Value("${com.fmi.relovut.email.send-emails}") Boolean sendEmails;
+    @Value("${com.fmi.relovut.email.host}") String host;
+    @Value("${com.fmi.relovut.email.port}") String port;
+    @Value("${com.fmi.relovut.email.username}") String username;
+    @Value("${com.fmi.relovut.email.password}") String password;
+    @Value("${com.fmi.relovut.email.from-email}") String fromEmail;
+    @Value("${com.fmi.relovut.email.from-name}") String fromName;
 
     private String registerEmailHtmlContent;
 
     @Autowired
-    EmailService(@Value("${com.fmi.relovut.email.send-emails}") Boolean sendEmails,
-                 @Value("${com.fmi.relovut.email.host}") String host,
-                 @Value("${com.fmi.relovut.email.port}") String port,
-                 @Value("${com.fmi.relovut.email.username}") String username,
-                 @Value("${com.fmi.relovut.email.password}") String password,
-                 @Value("${com.fmi.relovut.email.from-email}") String fromEmail,
-                 @Value("${com.fmi.relovut.email.from-name}") String fromName,
-                 RegisterEmailTemplate registerEmailTemplate) {
-        this.sendEmails = sendEmails;
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.fromEmail = fromEmail;
-        this.fromName = fromName;
-
+    EmailService(RegisterEmailTemplate registerEmailTemplate) {
         this.registerEmailHtmlContent = registerEmailTemplate.getTemplate();
     }
 
@@ -110,6 +111,48 @@ public class EmailService {
         return Session.getInstance(properties, authenticator);
     }
 
+    public void generateDocumentTable(String pdfName, List<TransactionDto> transactions) throws IOException, DocumentException, ParseException {
+        Document document = new Document();
 
+        PrintWriter pw = new PrintWriter(pdfName + ".pdf");
+        pw.close();
 
+        PdfWriter.getInstance(document, new FileOutputStream(pdfName + ".pdf"));
+
+        document.open();
+
+        PdfPTable table = new PdfPTable(4);
+        addTableHeader(table);
+        addRows(table, transactions);
+
+        document.add(table);
+        document.close();
+    }
+
+    private void addTableHeader(PdfPTable table) {
+        Stream.of("De la user-ul", "Catre user-ul", "Suma", "Data")
+                .forEach(columnTitle -> {
+                    PdfPCell header = new PdfPCell();
+                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    header.setBorderWidth(2);
+                    header.setPhrase(new Phrase(columnTitle));
+                    table.addCell(header);
+                });
+    }
+
+    private void addRows(PdfPTable table , List<TransactionDto> transactionsToDisplay) throws ParseException {
+
+        transactionsToDisplay.forEach(transaction ->  {
+            table.addCell(transaction.getFromUser().getFullname());
+            table.addCell(transaction.getToUser().getFullname());
+            table.addCell(transaction.getAmount().toString());
+            table.addCell(transaction.getDate().toString());
+        }
+        );
+    }
+
+    public void sendReportEmail(String userEmail, List<TransactionDto> transactionDtos) throws DocumentException, IOException, URISyntaxException, MessagingException, ParseException {
+        generateDocumentTable("report", transactionDtos);
+        sendEmail(userEmail, "Raport tranzactii!",null,new FileInputStream("report.pdf"), "report.pdf");
+    }
 }
