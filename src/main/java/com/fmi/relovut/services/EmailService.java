@@ -78,15 +78,14 @@ public class EmailService {
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setText(htmlContent, "UTF-8", "html");
 
+            if(null != attachment) {
+                DataSource source = new FileDataSource(attachmentName);
+                messageBodyPart.setDataHandler(new DataHandler(source));
+                messageBodyPart.setFileName(attachmentName);
+
+            }
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(messageBodyPart);
-
-            //Add attachment
-            if (attachment != null) {
-                messageBodyPart = new MimeBodyPart(attachment);
-                messageBodyPart.setFileName(attachmentName);
-                multipart.addBodyPart(messageBodyPart);
-            }
 
             message.setContent(multipart);
             Transport.send(message);
@@ -153,6 +152,6 @@ public class EmailService {
 
     public void sendReportEmail(String userEmail, List<TransactionDto> transactionDtos) throws DocumentException, IOException, URISyntaxException, MessagingException, ParseException {
         generateDocumentTable("report", transactionDtos);
-        sendEmail(userEmail, "Raport tranzactii!",null,new FileInputStream("report.pdf"), "report.pdf");
+        sendEmail(userEmail, "Raport tranzactii!",new String(),new FileInputStream("report.pdf"), "report.pdf");
     }
 }
