@@ -1,6 +1,7 @@
 package com.fmi.relovut.services;
 
 import com.fmi.relovut.dto.account.AccountDetailsDto;
+import com.fmi.relovut.dto.transactions.TransactionChartDto;
 import com.fmi.relovut.dto.transactions.TransactionDto;
 import com.fmi.relovut.helpers.GeneralHelper;
 import com.fmi.relovut.models.Account;
@@ -16,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.transaction.Transactional;
-import java.security.Principal;
-import java.security.Security;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,4 +103,39 @@ public class TransactionService {
 
         return transactionDtos;
     }
+
+    public List<TransactionChartDto> toTransaction(String userEmail){
+          User user = userRepository.findByEmail(userEmail);
+          Date date = new Date();
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(date);
+          int month = calendar.get(Calendar.MONTH) + 1;
+
+          List<Transaction> incomingTransactions = transactionRepository.findByToAccount_Id(user.getAccount().getId())
+                      .stream().filter(transaction -> transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).getMonthValue() == month)
+                      .collect(Collectors.toList());
+
+          List<TransactionChartDto> incomingTransactionsDto = incomingTransactions.stream()
+                  .map(TransactionChartDto::new).collect(Collectors.toList());
+
+          return incomingTransactionsDto;
+ }
+
+    public List<TransactionChartDto> fromTransaction(String userEmail){
+        User user = userRepository.findByEmail(userEmail);
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int month = calendar.get(Calendar.MONTH) + 1;
+
+        List<Transaction> outgoingTransactions = transactionRepository.findByFromAccount_Id(user.getAccount().getId())
+                .stream().filter(transaction -> transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).getMonthValue() == month)
+                .collect(Collectors.toList());
+
+        List<TransactionChartDto> outgoingTransactionsDto = outgoingTransactions.stream()
+                .map(TransactionChartDto::new).collect(Collectors.toList());
+
+        return outgoingTransactionsDto;
+    }
+
 }
