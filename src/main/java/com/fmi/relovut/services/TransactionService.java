@@ -120,7 +120,7 @@ public class TransactionService {
         Map<Integer, List<TransactionChartDto>> incomingTransactionsDto = incomingTransactions.stream()
                 .map(trans ->  TransactionChartDto.builder()
                             .date(trans.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getDayOfMonth())
-                            .amount(trans.getAmount())
+                            .amount(GeneralHelper.round(trans.getAmount() * trans.getRate(), 2))
                             .build()
                 ).collect(Collectors.groupingBy(TransactionChartDto::getDate));
 
