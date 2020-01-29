@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.springframework.data.util.Pair.toMap;
+
 @Service
 public class TransactionService {
     @Autowired
@@ -115,13 +117,29 @@ public class TransactionService {
                       .stream().filter(transaction -> transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).getMonthValue() == month)
                       .collect(Collectors.toList());
 
-          List<TransactionChartDto> incomingTransactionsDto = incomingTransactions.stream()
-                  .map(TransactionChartDto::new).collect(Collectors.toList());
+        Map<Integer, List<TransactionChartDto>> incomingTransactionsDto = incomingTransactions.stream()
+                .map(trans ->  TransactionChartDto.builder()
+                            .date(trans.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getDayOfMonth())
+                            .amount(trans.getAmount())
+                            .build()
+                ).collect(Collectors.groupingBy(TransactionChartDto::getDate));
 
-          return incomingTransactionsDto;
+        List<TransactionChartDto> incomingData =new ArrayList<>();
+
+        for (Integer key : incomingTransactionsDto.keySet()) {
+            List<TransactionChartDto> values = incomingTransactionsDto.get(key);
+            Double amount = values.stream().collect(Collectors.summingDouble(TransactionChartDto::getAmount));
+
+            incomingData.add(TransactionChartDto.builder()
+                    .amount(amount)
+                    .date(key)
+                    .build());
+        }
+
+        return incomingData;
  }
 
-    public List<TransactionChartDto> fromTransaction(String userEmail){
+    public  List<TransactionChartDto> fromTransaction(String userEmail){
         User user = userRepository.findByEmail(userEmail);
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -132,10 +150,24 @@ public class TransactionService {
                 .stream().filter(transaction -> transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).getMonthValue() == month)
                 .collect(Collectors.toList());
 
-        List<TransactionChartDto> outgoingTransactionsDto = outgoingTransactions.stream()
-                .map(TransactionChartDto::new).collect(Collectors.toList());
+        Map<Integer, List<TransactionChartDto>> outgoingTransactionsDto = outgoingTransactions.stream()
+                .map(trans ->  TransactionChartDto.builder()
+                .date(trans.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getDayOfMonth())
+                .amount(trans.getAmount())
+                .build()
+        ).collect(Collectors.groupingBy(TransactionChartDto::getDate));
 
-        return outgoingTransactionsDto;
+        List<TransactionChartDto> outgoingData =new ArrayList<>();
+
+        for (Integer key : outgoingTransactionsDto.keySet()) {
+            List<TransactionChartDto> values = outgoingTransactionsDto.get(key);
+            Double amount = values.stream().collect(Collectors.summingDouble(TransactionChartDto::getAmount));
+            outgoingData.add(TransactionChartDto.builder()
+                    .amount(amount)
+                    .date(key)
+                    .build());
+        }
+        return outgoingData;
     }
 
 }
