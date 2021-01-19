@@ -1,16 +1,17 @@
 package com.fmi.relovut.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Accessors(chain = true)
@@ -30,20 +31,9 @@ public class User {
     @NotNull
     private String fullname;
 
-    @ManyToMany
-    @JoinTable(name = "friends",
-            joinColumns = @JoinColumn(name = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "friendId")
-    )
-    @JsonIgnoreProperties("friendOf")
-    private List<User> friends = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "friends")
-    @JsonIgnoreProperties("friends")
-    private List<User> friendOf = new ArrayList<>();
-
-    @OneToOne(mappedBy = "user", optional = false)
-    private Account account;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<UserGroup> userGroupEntities = new HashSet<>();
 
     @Version
     @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
@@ -72,7 +62,6 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", fullname='" + fullname + '\'' +
-                ", account=" + account.getId() +
                 ", version=" + version +
                 '}';
     }

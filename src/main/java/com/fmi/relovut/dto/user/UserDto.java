@@ -1,18 +1,48 @@
 package com.fmi.relovut.dto.user;
 
-import com.fmi.relovut.dto.account.AccountDto;
 import com.fmi.relovut.models.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.catalina.Manager;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Data
-public class UserDto {
-    public UserDto(User user) {
-        this.email = user.getEmail();
-        this.fullname = user.getFullname();
-        this.account = new AccountDto(user.getAccount());
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDto extends ManagerDto {
+    private Long id;
+    private String email;
+    private String fullname;
+
+    @Builder(builderMethodName = "userDtoBuilder")
+    public UserDto(boolean isManager, Long id, String email, String fullname){
+        super(isManager);
+        this.email = email;
+        this.fullname = fullname;
+        this.id = id;
+
     }
 
-    private final String email;
-    private final String fullname;
-    private final AccountDto account;
+    public UserDto(User user, boolean isManager){
+        this.id = user.getId();
+        this.setManager(isManager);
+        this.fullname = user.getFullname();
+        this.email = user.getEmail();
+
+    }
+
+    public static Set<UserDto> toDtos(Map<User, Boolean> users){
+        return  users.entrySet().stream()
+                .map(userMap -> new UserDto(userMap.getKey(), userMap.getValue()))
+                .collect(Collectors.toSet());
+
+    }
 }
