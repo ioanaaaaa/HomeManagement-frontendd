@@ -2,6 +2,7 @@ package com.fmi.relovut.controllers;
 
 import com.fmi.relovut.dto.GroupDto;
 import com.fmi.relovut.services.GroupService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class GroupController {
      * @return
      */
     @PostMapping("/add-edit")
-    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto, Principal principal){
+    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto, Principal principal) throws NotFoundException {
         groupService.createOrUpdateGroup(groupDto, principal);
 
         return new ResponseEntity(HttpStatus.OK);
