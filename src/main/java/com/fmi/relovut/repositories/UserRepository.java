@@ -14,6 +14,7 @@ import java.util.Set;
 public interface UserRepository extends CrudRepository<User, Long> {
     User findByEmail(String email);
     List<User> findTop100ByFullnameContaining(String fullname);
+
     @Query("select u from User u where u.id in (:userIds)")
-    List<User> findByIds(@Param("userIds") Set<Long> userIds);
+    Set<User> findByIds(@Param("userIds") Set<Long> userIds);
 }

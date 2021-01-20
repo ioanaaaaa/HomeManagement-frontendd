@@ -10,13 +10,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Set;
+
 @Service
 public class UserService {
-    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
+    }
 
     public User getByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -40,6 +45,10 @@ public class UserService {
         userRepository.save(newUser);
 //
         return ApiJWTAuthenticationFilter.generateJwtToken(newUser.getEmail());
+    }
+
+    public Set<User> findUsersByIds(Set<Long> userIds){
+        return userRepository.findByIds(userIds);
     }
 
 }
