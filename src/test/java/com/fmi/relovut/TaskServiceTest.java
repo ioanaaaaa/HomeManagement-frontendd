@@ -5,11 +5,14 @@ import com.fmi.relovut.dto.tasks.CreateTaskDto;
 import com.fmi.relovut.models.Assignee;
 import com.fmi.relovut.models.AssigneeMember;
 import com.fmi.relovut.models.Task;
+import com.fmi.relovut.models.User;
 import com.fmi.relovut.repositories.AssigneeMemberRepository;
 import com.fmi.relovut.repositories.AssigneeRepository;
 import com.fmi.relovut.repositories.TaskRepository;
+import com.fmi.relovut.repositories.UserRepository;
 import com.fmi.relovut.services.TaskService;
 import com.fmi.relovut.services.UserGroupService;
+import com.fmi.relovut.services.UserService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +36,10 @@ public class TaskServiceTest {
     private AssigneeMemberRepository assigneeMemberRepository;
     @InjectMocks
     private UserGroupService userGroupService;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService;
 
     @Mock
     private Principal principal;
@@ -46,7 +53,29 @@ public class TaskServiceTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        taskService = new TaskService(taskRepository, userGroupService, assigneeRepository, assigneeMemberRepository, null, null);
+        userService = new UserService(null, userRepository);
+        taskService = new TaskService(taskRepository, userGroupService, assigneeRepository, assigneeMemberRepository, userService, null);
+    }
+
+    @Test
+    public void create_task_with_autoclaim(){
+        CreateTaskDto taskDto = buildTask(null, null, Set.of(new MemberDto(2L)));
+
+        when(principal.getName()).thenReturn("email");
+        when(userRepository.findByEmail(any())).thenReturn(User.builder().id(1L).build());
+        when(taskRepository.save(any())).thenReturn(buildTaskEntity());
+        when(assigneeRepository.save(any())).thenReturn(Assignee.builder()
+                .id(3L)
+                .build());
+
+        taskService.createOrEditTask(taskDto, principal);
+
+        Mockito.verify(this.taskRepository,
+                Mockito.times(1)).save(taskArgumentCaptor.capture());
+        Task task = taskArgumentCaptor.getValue();
+
+        Assert.assertEquals(Long.valueOf(1L), task.getClaimedBy());
+
     }
 
     @Test(expected = IllegalAccessException.class)

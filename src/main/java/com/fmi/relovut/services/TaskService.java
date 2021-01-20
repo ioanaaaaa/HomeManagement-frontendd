@@ -80,6 +80,38 @@ public class TaskService {
 
     }
 
+    @Transactional
+    public void submitTask(Principal principal, Long taskId) throws IllegalAccessException, NotFoundException {
+        if(null == taskId){
+            throw new IllegalAccessException("You must provide a task id in order to submit the task!");
+        }
+
+        //get user
+        User user = userService.getByEmail(principal.getName());
+
+        Optional<Task> optionalTask = taskRepository.findByTaskIdEagerlyActive(taskId);
+        if(!optionalTask.isPresent()){
+            throw new NotFoundException("The task with id " + taskId + " was not found!");
+        }
+
+        Task task = optionalTask.get();
+        if(Task.Status.COMPLETED.name().equalsIgnoreCase(task.getStatus().name())){
+            throw new IllegalAccessException("The task was completed!");
+        }
+
+        if(null == task.getClaimedBy() || null == task.getClaimedByUser()){
+            throw new IllegalAccessException("The task was not claimed!");
+        }
+
+        if(!user.getId().equals(task.getClaimedBy())){
+            throw new IllegalAccessException("Tou did not claimed this task!");
+        }
+
+        task.setStatus(Task.Status.COMPLETED);
+
+        taskRepository.save(task);
+    }
+
     @SneakyThrows
     @Transactional
     public void claimTask(Principal principal, Long taskId){
@@ -239,6 +271,13 @@ public class TaskService {
             task.setTitle(taskDto.getTitle());
             task.setStatus(Task.Status.IN_PROGRESS);
             task.setCategory(taskDto.getCategory());
+
+            //autoclaim task if has only one user assigned
+            if(CollectionUtils.isEmpty(taskDto.getGroups()) && !CollectionUtils.isEmpty(taskDto.getUsers()) && taskDto.getUsers().size() == 1){
+                //get user
+                User user = userService.getByEmail(principal.getName());
+                task.setClaimedBy(user.getId());
+            }
 
             task = taskRepository.save(task);
 
