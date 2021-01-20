@@ -1,13 +1,13 @@
 package com.fmi.relovut.controllers;
 
 import com.fmi.relovut.dto.GroupDto;
-import com.fmi.relovut.models.Group;
 import com.fmi.relovut.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Set;
 
 @RestController
@@ -20,13 +20,23 @@ public class GroupController {
         this.groupService = groupService;
     }
 
+    /**
+     * Create or edit group
+     * @param groupDto
+     * @param principal
+     * @return
+     */
     @PostMapping("/add-edit")
-    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto){
-        groupService.createOrUpdateGroup(groupDto);
+    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto, Principal principal){
+        groupService.createOrUpdateGroup(groupDto, principal);
 
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    /**
+     * Get all existing groups created by all users.
+     * @return
+     */
     @GetMapping("")
     public Set<GroupDto> getGroups(){
         return GroupDto.toDtos(groupService.getGroups());
@@ -37,5 +47,15 @@ public class GroupController {
         groupService.deleteGroupById(id);
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Get groups created by current user
+     * @param principal
+     * @return
+     */
+    @GetMapping("/current-user")
+    public Set<GroupDto> getGroupsCreatedByCurrentUser(Principal principal){
+        return  GroupDto.toDtos(groupService.getGroupsCreatedByCurrentUser(principal));
     }
 }

@@ -3,6 +3,7 @@ package com.fmi.relovut.services;
 import com.fmi.relovut.dto.GroupDto;
 import com.fmi.relovut.dto.user.UserDto;
 import com.fmi.relovut.models.Group;
+import com.fmi.relovut.models.User;
 import com.fmi.relovut.models.UserGroup;
 import com.fmi.relovut.repositories.GroupRepository;
 import com.fmi.relovut.repositories.UserGroupRepository;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,14 @@ public class GroupService {
          return groupRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Group> getGroupsCreatedByCurrentUser(Principal principal){
+        //get user
+        Long userId = userRepository.findIdByEmail(principal.getName());
+
+        return groupRepository.findAllByCreatedBy(userId);
+    }
+
     @Transactional
     public void deleteGroupById(Long groupId){
         groupRepository.deleteById(groupId);
@@ -49,12 +60,15 @@ public class GroupService {
 
     @SneakyThrows
     @Transactional
-    public void createOrUpdateGroup(GroupDto groupDto){
+    public void createOrUpdateGroup(GroupDto groupDto, Principal principal){
         Long id = groupDto.getId();
         Group group;
         if(null == id){//insert
+            Long userId = userRepository.findIdByEmail(principal.getName());
+
             group = Group.builder()
                     .name(groupDto.getName())
+                    .createdBy(userId)
                     .build();
             group = groupRepository.save(group);
         } else {// update
