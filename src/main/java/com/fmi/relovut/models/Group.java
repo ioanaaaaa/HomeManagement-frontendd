@@ -3,6 +3,7 @@ package com.fmi.relovut.models;
 import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.repository.cdi.Eager;
 
 import javax.persistence.*;
@@ -28,6 +29,8 @@ public class Group {
 
     @NotNull
     private String name;
+
+    private Long createdBy;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<UserGroup> userGroups = new HashSet<>();

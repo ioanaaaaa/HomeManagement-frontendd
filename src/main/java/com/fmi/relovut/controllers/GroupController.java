@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Set;
 
 @RestController
@@ -21,8 +22,8 @@ public class GroupController {
     }
 
     @PostMapping("/add-edit")
-    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto){
-        groupService.createOrUpdateGroup(groupDto);
+    public ResponseEntity createOrUpdateGroup(@RequestBody GroupDto groupDto, Principal principal){
+        groupService.createOrUpdateGroup(groupDto, principal);
 
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -37,5 +38,15 @@ public class GroupController {
         groupService.deleteGroupById(id);
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Get groups created by current user
+     * @param principal
+     * @return
+     */
+    @GetMapping("/current-user")
+    public Set<GroupDto> getGroupsForCurrentUser(Principal principal){
+        return  GroupDto.toDtos(groupService.getGroupsForCurrentUser(principal));
     }
 }

@@ -15,7 +15,8 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
     @Query("select distinct g from Group g left join fetch UserGroup ug on (g.id = ug.groupId) ")
     List<Group> findAll();
 
-
     @Query("select g from Group g where g.id in (:groupIds)")
     Set<Group> findByIds(@Param("groupIds") Set<Long> groupIds);
+
+    List<Group> findAllByCreatedBy(Long userId);
 }

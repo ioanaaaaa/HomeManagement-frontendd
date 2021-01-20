@@ -55,7 +55,7 @@ public class GroupServiceTest {
                 .id(1L)
                 .name("Name")
                 .build();
-        groupService.createOrUpdateGroup(groupDto);
+        groupService.createOrUpdateGroup(groupDto, null);
 
         Assert.assertEquals(new HashSet<>(), group.getUserGroups());
     }
@@ -71,7 +71,7 @@ public class GroupServiceTest {
                 .id(1L)
                 .name("Name")
                 .build();
-        groupService.createOrUpdateGroup(groupDto);
+        groupService.createOrUpdateGroup(groupDto, null);
 
         Mockito.verify(this.userGroupRepository,
                 Mockito.times(1)).deleteAll(userGroupEntityArgumentCaptor.capture());
@@ -96,7 +96,7 @@ public class GroupServiceTest {
                 .userDtoSet(Set.of(buildUserDto(false, 5L)))
                 .name("Name")
                 .build();
-        groupService.createOrUpdateGroup(groupDto);
+        groupService.createOrUpdateGroup(groupDto, null);
 
         Mockito.verify(this.userGroupRepository,
                 Mockito.times(1)).saveAll(saveUserGroupEntityArgumentCaptor.capture());
@@ -115,7 +115,7 @@ public class GroupServiceTest {
                 .userDtoSet(Set.of(buildUserDto(false, 5L)))
                 .name("Name")
                 .build();
-        groupService.createOrUpdateGroup(groupDto);
+        groupService.createOrUpdateGroup(groupDto, null);
 
         Mockito.verify(this.userGroupRepository,
                 Mockito.times(1)).saveAll(saveUserGroupEntityArgumentCaptor.capture());
