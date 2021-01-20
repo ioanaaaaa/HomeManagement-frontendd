@@ -84,4 +84,15 @@ public class TaskController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    /**
+     * Submit the task only if current user claimed it
+     * @param principal
+     */
+    @PostMapping("/submit/{id}")
+    public ResponseEntity submitTask(Principal principal, @PathVariable("id") Long taskId) throws NotFoundException, IllegalAccessException {
+        taskService.submitTask(principal, taskId);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
 }
