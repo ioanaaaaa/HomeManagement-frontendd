@@ -13,9 +13,12 @@ import com.fmi.relovut.repositories.UserRepository;
 import com.fmi.relovut.services.TaskService;
 import com.fmi.relovut.services.UserGroupService;
 import com.fmi.relovut.services.UserService;
+import javassist.NotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.*;
 
 import java.security.Principal;
@@ -49,12 +52,77 @@ public class TaskServiceTest {
     @Captor
     private ArgumentCaptor<Set<AssigneeMember>> assigneeMemberArgumentCaptor;
 
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         userService = new UserService(null, userRepository);
         taskService = new TaskService(taskRepository, userGroupService, assigneeRepository, assigneeMemberRepository, userService, null);
+    }
+
+    @Test
+    public void submit_completed_task() throws NotFoundException, IllegalAccessException {
+        Task task = new Task().setClaimedBy(1L).setId(2L).setStatus(Task.Status.COMPLETED);
+
+        when(principal.getName()).thenReturn("email");
+        when(userRepository.findByEmail(any())).thenReturn(User.builder().id(1L).build());
+        when(taskRepository.findByTaskIdEagerlyActive(any())).thenReturn(java.util.Optional.ofNullable(task));
+
+        exceptionRule.expect(IllegalAccessException.class);
+        exceptionRule.expectMessage("The task was completed!");
+
+        taskService.submitTask(principal, task.getId());
+
+    }
+
+    @Test
+    public void submit_unclaimed_task() throws NotFoundException, IllegalAccessException {
+        Task task = new Task().setId(2L).setStatus(Task.Status.IN_PROGRESS);
+
+        when(principal.getName()).thenReturn("email");
+        when(userRepository.findByEmail(any())).thenReturn(User.builder().id(1L).build());
+        when(taskRepository.findByTaskIdEagerlyActive(any())).thenReturn(java.util.Optional.ofNullable(task));
+
+        exceptionRule.expect(IllegalAccessException.class);
+        exceptionRule.expectMessage("The task was not claimed!");
+
+        taskService.submitTask(principal, task.getId());
+
+    }
+
+    @Test
+    public void submit_wrong_task() throws NotFoundException, IllegalAccessException {
+        Task task = new Task().setClaimedBy(3L).setClaimedByUser(new User()).setId(2L).setStatus(Task.Status.IN_PROGRESS);
+
+        when(principal.getName()).thenReturn("email");
+        when(userRepository.findByEmail(any())).thenReturn(User.builder().id(1L).build());
+        when(taskRepository.findByTaskIdEagerlyActive(any())).thenReturn(java.util.Optional.ofNullable(task));
+
+        exceptionRule.expect(IllegalAccessException.class);
+        exceptionRule.expectMessage("Tou did not claimed this task!");
+
+        taskService.submitTask(principal, task.getId());
+
+    }
+
+    @Test
+    public void submit_task() throws NotFoundException, IllegalAccessException {
+        Task task = new Task().setClaimedBy(1L).setClaimedByUser(new User()).setId(2L).setStatus(Task.Status.IN_PROGRESS);
+
+        when(principal.getName()).thenReturn("email");
+        when(userRepository.findByEmail(any())).thenReturn(User.builder().id(1L).build());
+        when(taskRepository.findByTaskIdEagerlyActive(any())).thenReturn(java.util.Optional.ofNullable(task));
+
+        taskService.submitTask(principal, task.getId());
+
+        Mockito.verify(this.taskRepository,
+                Mockito.times(1)).save(taskArgumentCaptor.capture());
+        Task taskResulted = taskArgumentCaptor.getValue();
+
+        Assert.assertEquals(Task.Status.COMPLETED, taskResulted.getStatus());
     }
 
     @Test
