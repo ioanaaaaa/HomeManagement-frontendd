@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
+@Builder
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 public class User {

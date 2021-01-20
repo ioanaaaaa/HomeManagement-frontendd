@@ -42,6 +42,11 @@ public class GroupService {
         groupRepository.deleteById(groupId);
     }
 
+    @Transactional(readOnly = true)
+    public Set<Group> findGroupsByIds(Set<Long> groupIds){
+        return groupRepository.findByIds(groupIds);
+    }
+
     @SneakyThrows
     @Transactional
     public void createOrUpdateGroup(GroupDto groupDto){

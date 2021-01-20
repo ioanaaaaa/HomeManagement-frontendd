@@ -1,16 +1,23 @@
 package com.fmi.relovut.models;
 
-import lombok.Data;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 @Entity
 @Table(name = "assignee_members")
+@Builder
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class AssigneeMember {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,5 +35,6 @@ public class AssigneeMember {
     private Long userId;
     private Long groupId;
 
+    private boolean active;
 
 }
