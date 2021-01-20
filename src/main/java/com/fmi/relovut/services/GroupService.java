@@ -58,9 +58,8 @@ public class GroupService {
         return groupRepository.findByIds(groupIds);
     }
 
-    @SneakyThrows
     @Transactional
-    public void createOrUpdateGroup(GroupDto groupDto, Principal principal){
+    public void createOrUpdateGroup(GroupDto groupDto, Principal principal) throws NotFoundException {
         Long id = groupDto.getId();
         Group group;
         if(null == id){//insert

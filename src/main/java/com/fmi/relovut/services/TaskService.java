@@ -20,8 +20,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Service
 public class TaskService {
@@ -41,6 +40,39 @@ public class TaskService {
         this.assigneeMemberRepository = assigneeMemberRepository;
         this.userService = userService;
         this.groupService = groupService;
+    }
+
+    /**
+     * Deletes the specified task only if the current user is manager
+     * @param id
+     */
+    @Transactional
+    public void deleteTask(Long id, Principal principal) throws IllegalAccessException, NotFoundException {
+        if(null == id){
+            throw new IllegalAccessException("The task with id" + id + " does not exist!");
+        }
+
+        Optional<Task> taskOptional = taskRepository.findById(id);
+        if(!taskOptional.isPresent()){
+            throw new NotFoundException("The task with id " + id + " was not found!");
+        }
+
+        //check it the principal is manager in order to delete the task
+        if (Boolean.FALSE.equals(checkForManager(taskOptional.get(), principal.getName()))) {
+            throw new IllegalAccessException("You can not delete this task because you are not a manager");
+        }
+
+        Set<Assignee> assignees = taskOptional.get().getAssignedUsers();
+        Set<Long> assigneeIds = assignees.stream().map(Assignee::getId).collect(toSet());
+        Set<Long> assigneeMembers = assignees.stream().map(Assignee::getAssigneeMemberSet)
+                .flatMap(list -> list.stream())
+                .map(AssigneeMember::getId)
+                .collect(Collectors.toSet());
+
+        assigneeMemberRepository.deleteAllByIdIn(assigneeMembers);
+        assigneeRepository.deleteAllByIdIn(assigneeIds);
+        taskRepository.delete(taskOptional.get());
+
     }
 
     //la reassign task trebuie sa setez si claim by cu null;
@@ -242,7 +274,7 @@ public class TaskService {
     private boolean checkForManager(Task task, String principalEmail) {
         Set<AssigneeMember> assigneeMembers = getActiveAssignees(task);
         Set<Long> groupIds = assigneeMembers.stream().map(AssigneeMember::getGroupId).collect(toSet());
-        if (CollectionUtils.isEmpty(groupIds)) {
+        if (!CollectionUtils.isEmpty(groupIds)) {
             return userGroupService.checkForManager(groupIds, principalEmail);
         }
 

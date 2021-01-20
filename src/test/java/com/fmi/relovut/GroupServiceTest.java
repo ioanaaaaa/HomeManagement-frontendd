@@ -8,6 +8,7 @@ import com.fmi.relovut.repositories.GroupRepository;
 import com.fmi.relovut.repositories.UserGroupRepository;
 import com.fmi.relovut.repositories.UserRepository;
 import com.fmi.relovut.services.GroupService;
+import javassist.NotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void remove_all_members(){
+    public void remove_all_members() throws NotFoundException {
         Group group = buildGroup();
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
 
@@ -61,7 +62,7 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void replace_member(){
+    public void replace_member() throws NotFoundException {
         Group group = buildGroup();
         Set<UserGroup> oldUserGroup = group.getUserGroups();
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
@@ -87,7 +88,7 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void add_member(){
+    public void add_member() throws NotFoundException {
         Group group = new Group();
 
         when(groupRepository.save(any())).thenReturn(group);
@@ -106,7 +107,7 @@ public class GroupServiceTest {
     }
 
     @Test
-    public void update_manager(){
+    public void update_manager() throws NotFoundException {
         Group group = buildGroup();
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
 
