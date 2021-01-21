@@ -8,19 +8,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
 public class UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserRepository userRepository;
+    private final EmailService emailService;
 
     @Autowired
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, EmailService emailService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public User getByEmail(String email) {
@@ -39,16 +43,24 @@ public class UserService {
                 .setEmail(registerUserDto.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(registerUserDto.getPassword()))
                 .setFullname(registerUserDto.getFullname());
-//
-//        emailService.sendRegisterEmail(newUser.getEmail());
+
+        emailService.sendRegisterEmail(newUser.getEmail());
 
         userRepository.save(newUser);
-//
+
         return ApiJWTAuthenticationFilter.generateJwtToken(newUser.getEmail());
     }
 
     public Set<User> findUsersByIds(Set<Long> userIds){
         return userRepository.findByIds(userIds);
+    }
+
+    public List<User> searchUsers(String searchTerm){
+        if(StringUtils.isEmpty(searchTerm)){
+            return userRepository.findAll();
+        } else {
+            return userRepository.findByEmailLikeOrFullnameLike(searchTerm, searchTerm);
+        }
     }
 
 }

@@ -59,7 +59,7 @@ public class TaskServiceTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        userService = new UserService(null, userRepository);
+        userService = new UserService(null, userRepository, null);
         taskService = new TaskService(taskRepository, userGroupService, assigneeRepository, assigneeMemberRepository, userService, null);
     }
 

@@ -1,7 +1,6 @@
 package com.fmi.relovut.repositories;
 
 import com.fmi.relovut.models.User;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +20,11 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query("select u from User u where u.id in (:userIds)")
     Set<User> findByIds(@Param("userIds") Set<Long> userIds);
+
+    List<User> findByEmailLikeOrFullnameLike(String searchTerm, String samSearchTerm);
+
+//    List<User> findByEmailOrFullnameContainingIgnoreCase(String searchTerm);
+
+    @Query("select u from User u")
+    List<User> findAll();
 }

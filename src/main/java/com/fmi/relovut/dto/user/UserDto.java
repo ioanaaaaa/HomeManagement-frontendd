@@ -45,4 +45,18 @@ public class UserDto extends ManagerDto {
                 .collect(Collectors.toSet());
 
     }
+
+    public UserDto(User user){
+        this.id = user.getId();
+        this.fullname = user.getFullname();
+        this.email = user.getEmail();
+
+    }
+
+    public static Set<UserDto> toDtos(List<User> users){
+        return  users.stream()
+                .map(user -> new UserDto(user))
+                .collect(Collectors.toSet());
+
+    }
 }
