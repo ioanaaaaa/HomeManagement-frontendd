@@ -21,7 +21,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select u from User u where u.id in (:userIds)")
     Set<User> findByIds(@Param("userIds") Set<Long> userIds);
 
-    List<User> findByEmailLikeOrFullnameLike(String searchTerm, String samSearchTerm);
+    List<User> findByEmailContainsOrFullnameContains(String searchTerm, String samSearchTerm);
 
 //    List<User> findByEmailOrFullnameContainingIgnoreCase(String searchTerm);
 

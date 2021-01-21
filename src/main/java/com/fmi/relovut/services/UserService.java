@@ -59,7 +59,7 @@ public class UserService {
         if(StringUtils.isEmpty(searchTerm)){
             return userRepository.findAll();
         } else {
-            return userRepository.findByEmailLikeOrFullnameLike(searchTerm, searchTerm);
+            return userRepository.findByEmailContainsOrFullnameContains(searchTerm, searchTerm);
         }
     }
 
