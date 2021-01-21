@@ -62,9 +62,11 @@ public class GroupController {
     }
 
     /**
-     * Get groups created by current user
+     * Get groups managed by current user.
+     * Return also the user members.
+     *
      * @param principal
-     * @return
+     * @return GroupDto
      */
     @GetMapping("/my-teams")
     public List<GroupDto> getGroupsManagedByCurrentUser(Principal principal){
