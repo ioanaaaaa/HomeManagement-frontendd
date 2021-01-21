@@ -14,9 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -68,7 +66,7 @@ public class GroupServiceTest {
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
 
         GroupDto groupDto = GroupDto.builder()
-                .userDtoSet(Set.of(buildUserDto(false, 5L)))
+                .userDtoSet(List.of(buildUserDto(false, 5L)))
                 .id(1L)
                 .name("Name")
                 .build();
@@ -94,7 +92,7 @@ public class GroupServiceTest {
         when(groupRepository.save(any())).thenReturn(group);
 
         GroupDto groupDto = GroupDto.builder()
-                .userDtoSet(Set.of(buildUserDto(false, 5L)))
+                .userDtoSet(List.of(buildUserDto(false, 5L)))
                 .name("Name")
                 .build();
         groupService.createOrUpdateGroup(groupDto, null);
@@ -113,7 +111,7 @@ public class GroupServiceTest {
 
         GroupDto groupDto = GroupDto.builder()
                 .id(1L)
-                .userDtoSet(Set.of(buildUserDto(false, 5L)))
+                .userDtoSet(List.of(buildUserDto(false, 5L)))
                 .name("Name")
                 .build();
         groupService.createOrUpdateGroup(groupDto, null);

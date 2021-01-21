@@ -39,10 +39,10 @@ public class UserDto extends ManagerDto {
 
     }
 
-    public static Set<UserDto> toDtos(Map<User, Boolean> users){
+    public static List<UserDto> toDtos(Map<User, Boolean> users){
         return  users.entrySet().stream()
                 .map(userMap -> new UserDto(userMap.getKey(), userMap.getValue()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
     }
 
@@ -53,10 +53,10 @@ public class UserDto extends ManagerDto {
 
     }
 
-    public static Set<UserDto> toDtos(List<User> users){
+    public static List<UserDto> toDtos(List<User> users){
         return  users.stream()
                 .map(user -> new UserDto(user))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
     }
 }

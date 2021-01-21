@@ -41,6 +41,14 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
+    public List<Group> getGroupsManagedBYCurrentUser(Principal principal){
+        //get user
+        Long userId = userRepository.findIdByEmail(principal.getName());
+
+        return groupRepository.findByManager(userId);
+    }
+
+    @Transactional(readOnly = true)
     public List<Group> getGroupsCreatedByCurrentUser(Principal principal){
         //get user
         Long userId = userRepository.findIdByEmail(principal.getName());

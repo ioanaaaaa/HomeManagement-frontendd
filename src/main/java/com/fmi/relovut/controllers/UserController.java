@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("")
-    public Set<UserDto> searchUsers(@RequestParam(value = "searchTerm", required = false) String searchTerm){
+    public List<UserDto> searchUsers(@RequestParam(value = "searchTerm", required = false) String searchTerm){
         return UserDto.toDtos(userService.searchUsers(searchTerm));
     }
 

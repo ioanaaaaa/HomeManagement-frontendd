@@ -19,4 +19,10 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
     Set<Group> findByIds(@Param("groupIds") Set<Long> groupIds);
 
     List<Group> findAllByCreatedBy(Long userId);
+
+    @Query(value = "select g from Group g inner join  g.userGroups ug " +
+            "where ug.groupId in ( select g2.id from Group as g2 inner join g2.userGroups ug2 " +
+            "where ug2.userId =:userId and ug.isManager = true) ")
+    List<Group> findByManager(@Param("userId") Long userId);
+
 }

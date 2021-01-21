@@ -7,14 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskModelDto extends TaskSimpleDto {
-    private Set<UserDto> users;
-    private Set<GroupDto> groups;
+    private List<UserDto> users;
+    private List<GroupDto> groups;
     private Task.Status status;
     private UserDto claimedBy;
 

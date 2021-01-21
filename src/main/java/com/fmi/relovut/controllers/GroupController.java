@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -39,7 +40,7 @@ public class GroupController {
      * @return
      */
     @GetMapping("")
-    public Set<GroupDto> getGroups(){
+    public List<GroupDto> getGroups(){
         return GroupDto.toDtos(groupService.getGroups());
     }
 
@@ -56,7 +57,17 @@ public class GroupController {
      * @return
      */
     @GetMapping("/current-user")
-    public Set<GroupDto> getGroupsCreatedByCurrentUser(Principal principal){
+    public List<GroupDto> getGroupsCreatedByCurrentUser(Principal principal){
         return  GroupDto.toDtos(groupService.getGroupsCreatedByCurrentUser(principal));
+    }
+
+    /**
+     * Get groups created by current user
+     * @param principal
+     * @return
+     */
+    @GetMapping("/my-teams")
+    public List<GroupDto> getGroupsManagedByCurrentUser(Principal principal){
+        return  GroupDto.toDtos(groupService.getGroupsManagedBYCurrentUser(principal));
     }
 }

@@ -27,9 +27,13 @@ public class GroupDto {
     private String name;
 
     @NotNull
-    private Set<UserDto> userDtoSet;
+    private List<UserDto> userDtoSet;
 
     public static final GroupDto toDto(Group group){
+        if(null == group){
+            return null;
+        }
+
         Map<User, Boolean> users = group.getUserGroups().stream().collect(toMap(obj -> obj.getUser(), userGroup -> userGroup.isManager()));
         return GroupDto.builder()
                 .name(group.getName())
@@ -38,7 +42,7 @@ public class GroupDto {
                 .build();
     }
 
-    public static final Set<GroupDto> toDtos(List<Group> groupList){
-        return  groupList.stream().map(GroupDto::toDto).collect(Collectors.toSet());
+    public static final List<GroupDto> toDtos(List<Group> groupList){
+        return  groupList.stream().map(GroupDto::toDto).collect(Collectors.toList());
     }
 }
