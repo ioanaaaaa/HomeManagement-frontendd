@@ -24,4 +24,7 @@ public interface UserGroupRepository extends CrudRepository<UserGroup, Long> {
     @Query("select ug.userId from UserGroup ug where ug.groupId=?1")
     Set<Long> findUserIdsByGroupId(Long groupId);
 
+    @Query("select distinct ug.groupId from UserGroup ug where ug.userId =:userId and ug.isManager = true")
+    Set<Long> findGroupIdsManagedByPrinciple(@Param("userId") Long userId);
+
 }

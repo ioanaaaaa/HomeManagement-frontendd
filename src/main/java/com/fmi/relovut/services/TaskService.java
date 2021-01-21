@@ -43,6 +43,34 @@ public class TaskService {
     }
 
     /**
+     * Get open and completed tasks for members of the groups that are managed by principle
+     * @param principal
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<TaskModelDto> getMyTeamsTasks(Principal principal){
+        //get user
+        User user = userService.getByEmail(principal.getName());
+
+        Set<Long> groupIds = userGroupService.getGroupIdsManagedByPrinciple(user.getId());
+
+        if(CollectionUtils.isEmpty(groupIds))
+            return null;
+
+        List<Task> tasks = taskRepository.findByActiveAssignedUsers_activeAssigneeMemberSet_groupIdIn(groupIds);
+
+        List<TaskModelDto> taskModelDtos = new ArrayList<>();
+        for (Task task : tasks) {
+            TaskModelDto taskModelDto = convertToModel(task);
+
+            taskModelDtos.add(taskModelDto);
+        }
+
+        return taskModelDtos;
+
+    }
+
+    /**
      * Deletes the specified task only if the current user is manager
      * @param id
      */
@@ -76,9 +104,9 @@ public class TaskService {
     }
 
     //la reassign task trebuie sa setez si claim by cu null;
-    public void reassignTask(){
-
-    }
+//    public void reassignTask(){
+//
+//    }
 
     @Transactional
     public void submitTask(Principal principal, Long taskId) throws IllegalAccessException, NotFoundException {

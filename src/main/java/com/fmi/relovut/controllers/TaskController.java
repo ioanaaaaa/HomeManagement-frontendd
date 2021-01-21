@@ -2,8 +2,8 @@ package com.fmi.relovut.controllers;
 
 import com.fmi.relovut.dto.tasks.CreateTaskDto;
 import com.fmi.relovut.dto.tasks.TaskModelDto;
+import com.fmi.relovut.models.Task;
 import com.fmi.relovut.services.TaskService;
-import com.sun.mail.iap.Response;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,6 +74,7 @@ public class TaskController {
 
     /**
      * Deletes the specified task only if the current user is manager
+     *
      * @param taskId
      * @param principal
      * @return
@@ -86,6 +87,7 @@ public class TaskController {
 
     /**
      * Submit the task only if current user claimed it
+     *
      * @param principal
      */
     @PostMapping("/submit/{id}")
@@ -93,6 +95,17 @@ public class TaskController {
         taskService.submitTask(principal, taskId);
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Get open and completed tasks for members of the groups that are managed by principle
+     * @param principal
+     * @return
+     */
+    @GetMapping("/my-teams")
+    public List<TaskModelDto> getMyTeamsTasks(Principal principal){
+        return taskService.getMyTeamsTasks(principal);
+
     }
 
 }

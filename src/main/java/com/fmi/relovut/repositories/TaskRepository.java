@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,4 +27,8 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
     @Query("select distinct t from Task t inner join fetch t.activeAssignedUsers a inner join fetch a.activeAssigneeMemberSet am " +
             "where am.userId =:id  and t.status = 'COMPLETED'")
     Set<Task> findAllCompletedForUser(@Param("id") Long userId);
+
+//    @Query(" select distinct t from Task t left join fetch t.activeAssignedUsers a inner join fetch a.assigneeMemberSet am " +
+//            "where t.id =:id")
+    List<Task> findByActiveAssignedUsers_activeAssigneeMemberSet_groupIdIn(Set<Long> groupIds);
 }

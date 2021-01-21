@@ -24,6 +24,10 @@ public class UserGroupService {
         return StringUtils.isEmpty(email) ? false : true;
     }
 
+    public Set<Long> getGroupIdsManagedByPrinciple(Long userId){
+        return userGroupRepository.findGroupIdsManagedByPrinciple(userId);
+    }
+
     public Set<Long> getGroupsIdsForUser(Long userId){
         return userGroupRepository.findGroupIdsByUserId(userId);
     }
