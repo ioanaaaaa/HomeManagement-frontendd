@@ -19,20 +19,24 @@ public class UserGroupService {
     }
 
     @Transactional(readOnly = true)
-    public boolean checkForManager(Set<Long> groupIds, String principalEmail){
+    public boolean checkForManager(Set<Long> groupIds, String principalEmail) {
         String email = userGroupRepository.findManagerByGroupIds(groupIds, principalEmail);
         return StringUtils.isEmpty(email) ? false : true;
     }
 
-    public Set<Long> getGroupIdsManagedByPrinciple(Long userId){
+    public Set<Long> getGroupIdsManagedByPrinciple(Long userId) {
         return userGroupRepository.findGroupIdsManagedByPrinciple(userId);
     }
 
-    public Set<Long> getGroupsIdsForUser(Long userId){
+    public boolean checkIfUserBelongsToGroup(Long userId, Long groupId) {
+        return userGroupRepository.findByUserIdAndGroupId(userId, groupId).isPresent() ? true : false;
+    }
+
+    public Set<Long> getGroupsIdsForUser(Long userId) {
         return userGroupRepository.findGroupIdsByUserId(userId);
     }
 
-    public Set<Long> getUserIdsForGroup(Long groupId){
+    public Set<Long> getUserIdsForGroup(Long groupId) {
         return userGroupRepository.findUserIdsByGroupId(groupId);
     }
 }

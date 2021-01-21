@@ -1,6 +1,7 @@
 package com.fmi.relovut.repositories;
 
 import com.fmi.relovut.models.Task;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +29,7 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
             "where am.userId =:id  and t.status = 'COMPLETED'")
     Set<Task> findAllCompletedForUser(@Param("id") Long userId);
 
-//    @Query(" select distinct t from Task t left join fetch t.activeAssignedUsers a inner join fetch a.assigneeMemberSet am " +
-//            "where t.id =:id")
     List<Task> findByActiveAssignedUsers_activeAssigneeMemberSet_groupIdIn(Set<Long> groupIds);
+
+    List<Task> findAll(Specification<Task> taskFilterDto);
 }

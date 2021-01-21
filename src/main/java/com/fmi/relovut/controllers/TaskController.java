@@ -1,8 +1,8 @@
 package com.fmi.relovut.controllers;
 
 import com.fmi.relovut.dto.tasks.CreateTaskDto;
+import com.fmi.relovut.dto.tasks.TaskFilterDto;
 import com.fmi.relovut.dto.tasks.TaskModelDto;
-import com.fmi.relovut.models.Task;
 import com.fmi.relovut.services.TaskService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -31,7 +30,7 @@ public class TaskController {
     }
 
     @GetMapping("")
-    public Set<TaskModelDto> getAllTasks() {
+    public List<TaskModelDto> getAllTasks() {
         return taskService.getAllTasks();
     }
 
@@ -99,13 +98,25 @@ public class TaskController {
 
     /**
      * Get open and completed tasks for members of the groups that are managed by principle
+     *
      * @param principal
      * @return
      */
     @GetMapping("/my-teams")
-    public List<TaskModelDto> getMyTeamsTasks(Principal principal){
+    public List<TaskModelDto> getMyTeamsTasks(Principal principal) {
         return taskService.getMyTeamsTasks(principal);
 
+    }
+
+    /**
+     * Filter tasks by group, user, status, and any combination of this 3 attributes
+     *
+     * @param taskFilterDto
+     * @return
+     */
+    @PostMapping("/filter")
+    public List<TaskModelDto> filterTasks(@RequestBody TaskFilterDto taskFilterDto) {
+        return taskService.searchTasks(taskFilterDto);
     }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -26,5 +27,7 @@ public interface UserGroupRepository extends CrudRepository<UserGroup, Long> {
 
     @Query("select distinct ug.groupId from UserGroup ug where ug.userId =:userId and ug.isManager = true")
     Set<Long> findGroupIdsManagedByPrinciple(@Param("userId") Long userId);
+
+    Optional<UserGroup> findByUserIdAndGroupId(Long userId, Long groupId);
 
 }
